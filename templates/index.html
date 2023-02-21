@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="jeonjejo" />
+  <meta name="keywords" content="TN Model" />
+  <meta name="description" content="TTS 제공을 위한 Text Normalize 모델 데모페이지 입니다." />
+  <title>Text Normalize 모델</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <style>
+  h1 { font-size: 25px }
+  .lead { font-size: 17px }
+  .highlight {
+    background-color: #f7f7f9;
+    padding: 1px 9px;
+    min-height: 85px
+  }
+  .highlight #progressing {
+    line-height: 83px
+  }
+  .highlight h3 {
+    margin: 0;
+  }
+  </style>
+</head>
+<body>
+  <div class="container col-md-6 col-md-offset-3">
+    <div class="page-header">
+      <h1>Text Normalize 모델 <small>Version 1.4</small></h1>
+    </div>
+    <p class="lead">TTS의 자연스러운 발음을 위한 Text Normalize 모델 데모페이지 입니다.</p>
+    <div class="row">
+      <form id="form" action="/" method="GET" class="col-sm-6">
+        <div class="form-group">
+          <label for="user-input">정규화 전 문장</label>
+          <input id="user-input" type="text" name="input" maxlength="40" class="form-control" placeholder="ex) 오늘 12시 12명 예약 맞으신가요?" />
+        </div>
+        <div class="form-group">
+          <input type="submit" class="btn btn-primary btn-block" value="Text Normalize" />
+        </div>
+      </form>
+      <div class="form-group col-sm-6">
+        <h4 style="margin-top:0">정규화 문장 및 추론 속도</h4>
+        <div class="highlight">
+          <div id="results-content" style="display:none">
+            <p><h3 id="input"></h3></p>
+            <p><h3 id="output"></h3></p>
+          </div>
+          <span id="progressing" style="display:none">처리 중..</span>
+        </div>
+      </div>
+    </div>
+    <p></p>
+    <p style="color:#777"> * 활용 모델: (메인)규칙 기반 모델</p>
+    <p style="color:#777">문의/피드백: <a href="emailto:jeong3080@lguplus.co.kr">jeong3080@lguplus.co.kr</a></p>
+    <br>
+    <p stype="color:#777"> v1.0: 초기버전</p>
+    <p stype="color:#777"> v1.1: Mecab 단위 명사에 따른 숫자 발화 규칙 보완</p>
+    <p stype="color:#777"> v1.2: 자주쓰이는 23만 영단어 및 인명 대상 발음 매핑 사전 구축</p>
+    <p stype="color:#777"> v1.3: 오류 보정: 영문 단위가 의도와 다르게 변환되는 부분 수정 </p>
+    <p stype="color:#777"> v1.4: 특수 포맷(이메일, IP, 전화번호) 발화 규칙 생성 </p>
+    <p stype="color:#777"> v1.5(Optional): 딕셔너리 비 커버 영단어 딥러닝 기반 한글 발음 생성 </p>
+  </div> <!-- /container -->
+
+  <!--a href="https://github.com/muik/transliteration"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a-->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <script>
+  function onSuccess(data, textStatus, jqXHR) {
+    $('#results-content').show();
+    $('#progressing').hide();
+
+    $('#user-input').val('');
+    $('#output').html(data.output);
+  }
+
+  $('#form').submit(function(e) {
+    var postData = $(this).serializeArray();
+    var formURL = $(this).attr("action");
+    $('#results-content').hide();
+    $('#progressing').show();
+    $.ajax({
+        url : formURL,
+        type: "POST",
+        data : postData,
+        success: onSuccess,
+        error: function(jqXHR, textStatus, errorThrown) {
+          $('#results-content').show();
+          $('#progressing').hide();
+
+          var userInput = $('#user-input').val();
+          $('#input').html(userInput);
+          $('#output').html('error!');
+        }
+    });
+    e.preventDefault(); //STOP default action
+    e.unbind(); //unbind. to stop multiple form submit.
+  });
+  </script>
+</body>
+</html>
